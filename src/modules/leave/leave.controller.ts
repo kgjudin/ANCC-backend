@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { query, memoryStore } from '../../config/db.js';
 import { AuthenticatedRequest } from '../../middleware/auth.middleware.js';
 import { LeaveTypeSchema, LeaveRequestSchema, LeaveApprovalSchema } from '@construction/validation';

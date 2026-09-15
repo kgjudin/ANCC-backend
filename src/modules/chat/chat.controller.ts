@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../middleware/auth.middleware.js';
 import { query } from '../../config/db.js';
