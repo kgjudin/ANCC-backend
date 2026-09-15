@@ -37,12 +37,12 @@ router.patch('/employees/:id', authenticateToken, requirePermission(PERMISSIONS.
 router.post('/employees/:id/reset-password', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_EDIT), employeeController.resetPassword);
 
 // Roles & Permissions API
-router.get('/permissions', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_VIEW), roleController.getPermissions);
-router.get('/roles', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_VIEW), roleController.getRoles);
-router.get('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_VIEW), roleController.getRoleById);
-router.post('/roles', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_CREATE), roleController.createRole);
-router.put('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_EDIT), roleController.updateRole);
-router.patch('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.EMPLOYEE_EDIT), roleController.updateRole);
+router.get('/permissions', authenticateToken, requirePermission(PERMISSIONS.ROLE_VIEW), roleController.getPermissions);
+router.get('/roles', authenticateToken, requirePermission(PERMISSIONS.ROLE_VIEW), roleController.getRoles);
+router.get('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.ROLE_VIEW), roleController.getRoleById);
+router.post('/roles', authenticateToken, requirePermission(PERMISSIONS.ROLE_CREATE), roleController.createRole);
+router.put('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.ROLE_EDIT), roleController.updateRole);
+router.patch('/roles/:id', authenticateToken, requirePermission(PERMISSIONS.ROLE_EDIT), roleController.updateRole);
 
 // Attendance API
 router.get('/attendance', authenticateToken, requirePermission(PERMISSIONS.ATTENDANCE_VIEW), attendanceController.getAttendance);

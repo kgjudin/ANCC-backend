@@ -144,19 +144,49 @@ export async function getRoomMessages(req: AuthenticatedRequest, res: Response) 
   }
 }
 
+import fs from 'fs';
+import path from 'path';
+
 // Send message to a chat room
 export async function sendMessage(req: AuthenticatedRequest, res: Response) {
   try {
     const currentUser = req.user!;
     const currentEmp = req.employee;
     const { roomId } = req.params;
-    const { content } = req.body;
+    const { content, file } = req.body;
 
-    if (!content || !content.trim()) {
+    if ((!content || !content.trim()) && !file) {
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Message content cannot be empty' }
+        error: { code: 'VALIDATION_ERROR', message: 'Message content or file cannot be empty' }
       });
+    }
+
+    let finalContent = content ? content.trim() : '';
+
+    // Handle Base64 file upload
+    if (file && file.base64 && file.name) {
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      // Remove data:image/png;base64, prefix
+      const base64Data = file.base64.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+      const ext = path.extname(file.name) || '.file';
+      const fileName = `${crypto.randomUUID()}${ext}`;
+      const filePath = path.join(uploadDir, fileName);
+
+      fs.writeFileSync(filePath, base64Data, 'base64');
+      
+      const fileUrl = `/uploads/${fileName}`;
+      const isImage = file.type?.startsWith('image/');
+      
+      const markdownAttachment = isImage 
+        ? `![${file.name}](${fileUrl})` 
+        : `[File: ${file.name}](${fileUrl})`;
+
+      finalContent = finalContent ? `${finalContent}\n\n${markdownAttachment}` : markdownAttachment;
     }
 
     const messageId = crypto.randomUUID();
@@ -166,7 +196,7 @@ export async function sendMessage(req: AuthenticatedRequest, res: Response) {
       `INSERT INTO messages (id, room_id, sender_user_id, sender_name, content)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [messageId, roomId, currentUser.id, senderName, content.trim()]
+      [messageId, roomId, currentUser.id, senderName, finalContent]
     );
 
     return res.status(201).json({

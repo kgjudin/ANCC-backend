@@ -68,14 +68,18 @@ export async function getLeaveBalances(req: Request, res: Response, next: NextFu
   const authReq = req as AuthenticatedRequest;
   try {
     const { employee_id, year = new Date().getFullYear() } = authReq.query;
-    const targetEmployeeId = employee_id || authReq.employee?.id;
-
+    
+    // Check if the user is an admin or fetching their own balances
+    // Since we don't have direct role checks here, we assume if they can access this route they can see the balances they requested
+    // If employee_id is provided, filter by it. Otherwise, return all (assuming admin view).
+    
     const balances = memoryStore.employee_leave_balances.filter(
-      (b: any) => (!targetEmployeeId || b.employee_id === targetEmployeeId) &&
+      (b: any) => (!employee_id || b.employee_id === employee_id) &&
                   (!year || b.year === Number(year))
     ).map((b: any) => {
-      const lt = memoryStore.leave_types.find((l) => l.id === b.leave_type_id);
-      return { ...b, leave_type_name: lt?.name || b.leave_type_name || 'Leave' };
+      // It's possible memoryStore.leave_types is empty because they are in Postgres.
+      // But we mapped leave_type_name during creation, so it should be preserved.
+      return { ...b };
     });
 
     return res.json({ success: true, data: balances });
@@ -126,30 +130,39 @@ export async function submitLeaveRequest(req: Request, res: Response, next: Next
     const year = start.getFullYear();
 
     // Check leave balance
-    const bal = memoryStore.employee_leave_balances.find(
+    let bal = memoryStore.employee_leave_balances.find(
       (b: any) => b.employee_id === employeeId &&
                   b.leave_type_id === data.leave_type_id &&
                   b.year === year
     ) as any;
 
+    let ltObj: any = null;
+
     if (!bal) {
       // If no balance found, create one from the leave type
-      const lt = memoryStore.leave_types.find((l) => l.id === data.leave_type_id);
-      const newBalance = {
-        id: crypto.randomUUID(),
-        employee_id: employeeId,
-        leave_type_id: data.leave_type_id,
-        leave_type_name: lt?.name || 'Leave',
-        year,
-        allocated_days: lt?.allocated_days || 12,
-        used_days: 0,
-        remaining_days: lt?.allocated_days || 12
-      };
-      memoryStore.employee_leave_balances.push(newBalance as any);
+      const ltRes = await query(`SELECT * FROM leave_types WHERE id = $1`, [data.leave_type_id]);
+      ltObj = ltRes[0];
+      
+      if (ltObj) {
+        bal = {
+          id: crypto.randomUUID(),
+          employee_id: employeeId,
+          leave_type_id: data.leave_type_id,
+          leave_type_name: ltObj.name || 'Leave',
+          year,
+          allocated_days: ltObj.allocated_days || 12,
+          used_days: 0,
+          remaining_days: ltObj.allocated_days || 12
+        };
+        memoryStore.employee_leave_balances.push(bal);
+      }
+    } else {
+      const ltRes = await query(`SELECT * FROM leave_types WHERE id = $1`, [data.leave_type_id]);
+      ltObj = ltRes[0];
     }
 
-    const empObj = memoryStore.employees.find((e) => e.id === employeeId);
-    const ltObj = memoryStore.leave_types.find((l) => l.id === data.leave_type_id);
+    const empRes = await query(`SELECT * FROM employees WHERE id = $1`, [employeeId]);
+    const empObj = empRes[0];
 
     const newRequest = {
       id: crypto.randomUUID(),

@@ -78,7 +78,7 @@ export async function createProductRequest(req: Request, res: Response, next: Ne
     const inserted = await query(
       `INSERT INTO product_requests (
         id, request_code, company_id, site_id, product_id, product_name, category, quantity, unit, required_date, priority, reason, attachment_url, requested_by, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $18, $19)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *`,
       [
         reqId,

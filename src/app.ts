@@ -33,8 +33,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+import path from 'path';
+
 // API Routes
 app.use('/api/v1', apiRouter);
+
+// Static Uploads Directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Global Error Handler
 app.use(errorHandler);
