@@ -9,13 +9,13 @@ export function errorHandler(
 ) {
   console.error('API Error:', err);
 
-  if (err instanceof ZodError) {
+  if (err instanceof ZodError || err.name === 'ZodError') {
     return res.status(400).json({
       success: false,
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Invalid input data',
-        details: err.errors
+        details: err.errors || (() => { try { return JSON.parse(err.message); } catch { return err.message; } })()
       }
     });
   }
