@@ -21,8 +21,8 @@ export async function getAdminDashboard(req: Request, res: Response, next: NextF
 
     const financialTotalsRes = await query(
       `SELECT 
-        COALESCE(SUM(total), COALESCE(SUM(total_amount), 4200)) as total_purchases,
-        COALESCE(SUM(CASE WHEN status = 'Approved' THEN total ELSE 0 END), 4200) as total_paid,
+        COALESCE(SUM(total), 0) as total_purchases,
+        COALESCE(SUM(CASE WHEN status = 'Approved' THEN total ELSE 0 END), 0) as total_paid,
         COALESCE(SUM(CASE WHEN status = 'Pending' THEN total ELSE 0 END), 0) as total_outstanding
        FROM financial_documents WHERE (company_id = $1 OR company_id IS NULL OR $1 = '00000000-0000-0000-0000-000000000001')`,
       [companyId]

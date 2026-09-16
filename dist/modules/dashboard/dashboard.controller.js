@@ -12,8 +12,8 @@ async function getAdminDashboard(req, res, next) {
         const pendingLeavesRes = await (0, db_js_1.query)(`SELECT COUNT(*) as cnt FROM leave_requests lr JOIN employees e ON lr.employee_id = e.id WHERE (e.company_id = $1 OR e.company_id IS NULL OR $1 = '00000000-0000-0000-0000-000000000001') AND lr.status = 'Pending'`, [companyId]);
         const totalSuppliersRes = await (0, db_js_1.query)(`SELECT COUNT(*) as cnt FROM suppliers WHERE (company_id = $1 OR company_id IS NULL OR $1 = '00000000-0000-0000-0000-000000000001') AND status = 'Active'`, [companyId]);
         const financialTotalsRes = await (0, db_js_1.query)(`SELECT 
-        COALESCE(SUM(total), COALESCE(SUM(total_amount), 4200)) as total_purchases,
-        COALESCE(SUM(CASE WHEN status = 'Approved' THEN total ELSE 0 END), 4200) as total_paid,
+        COALESCE(SUM(total), 0) as total_purchases,
+        COALESCE(SUM(CASE WHEN status = 'Approved' THEN total ELSE 0 END), 0) as total_paid,
         COALESCE(SUM(CASE WHEN status = 'Pending' THEN total ELSE 0 END), 0) as total_outstanding
        FROM financial_documents WHERE (company_id = $1 OR company_id IS NULL OR $1 = '00000000-0000-0000-0000-000000000001')`, [companyId]);
         const recentPurchases = await (0, db_js_1.query)(`SELECT fd.id, fd.invoice_no as po_number, fd.vendor_name as supplier_name, fd.date, fd.total, fd.status, st.name as site_name
