@@ -8,6 +8,7 @@ exports.getEmployeeById = getEmployeeById;
 exports.createEmployee = createEmployee;
 exports.updateEmployee = updateEmployee;
 exports.resetPassword = resetPassword;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -92,8 +93,8 @@ async function createEmployee(req, res, next) {
         const empSeq = Number(countRes[0].cnt) + 1;
         const employeeCode = `EMP-${String(empSeq).padStart(4, '0')}`;
         // Generate User ID & Employee ID
-        const userId = crypto.randomUUID();
-        const employeeId = crypto.randomUUID();
+        const userId = crypto_1.default.randomUUID();
+        const employeeId = crypto_1.default.randomUUID();
         // Insert User
         await (0, db_js_1.query)(`INSERT INTO users (id, email, company_id, status) VALUES ($1, $2, $3, 'Active')`, [userId, data.email, companyId]);
         // Insert User Role

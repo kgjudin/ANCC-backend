@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProductRequests = getProductRequests;
 exports.createProductRequest = createProductRequest;
 exports.updateProductRequestStatus = updateProductRequestStatus;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -60,10 +64,10 @@ async function createProductRequest(req, res, next) {
         const cntVal = Number(countRes[0]?.cnt ?? countRes[0]?.total ?? countRes[0]?.count ?? 0);
         const seq = isNaN(cntVal) || cntVal < 0 ? 1 : cntVal + 1;
         const reqCode = `REQ-${String(seq).padStart(4, '0')}`;
-        const reqId = crypto.randomUUID();
+        const reqId = crypto_1.default.randomUUID();
         const inserted = await (0, db_js_1.query)(`INSERT INTO product_requests (
         id, request_code, company_id, site_id, product_id, product_name, category, quantity, unit, required_date, priority, reason, attachment_url, requested_by, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $18, $19)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *`, [
             reqId,
             reqCode,
@@ -131,13 +135,13 @@ async function updateProductRequestStatus(req, res, next) {
             }
             else {
                 await (0, db_js_1.query)(`INSERT INTO inventory (id, company_id, site_id, product_id, opening_stock, received_qty, current_balance, unit)
-           VALUES ($1, $2, $3, $4, 0, $5, $5, $6)`, [crypto.randomUUID(), companyId, prq.site_id, prq.product_id, prq.quantity, prq.unit]);
+           VALUES ($1, $2, $3, $4, 0, $5, $5, $6)`, [crypto_1.default.randomUUID(), companyId, prq.site_id, prq.product_id, prq.quantity, prq.unit]);
             }
             // Record immutable inventory transaction log
             await (0, db_js_1.query)(`INSERT INTO inventory_transactions (
           id, company_id, site_id, product_id, quantity, unit, transaction_type, reference_id, notes, created_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, [
-                crypto.randomUUID(),
+                crypto_1.default.randomUUID(),
                 companyId,
                 prq.site_id,
                 prq.product_id,

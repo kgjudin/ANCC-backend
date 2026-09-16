@@ -1,9 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFinancialDocuments = getFinancialDocuments;
 exports.createFinancialDocument = createFinancialDocument;
 exports.updateFinancialDocStatus = updateFinancialDocStatus;
 exports.getFinanceSummary = getFinanceSummary;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -65,7 +69,7 @@ async function createFinancialDocument(req, res, next) {
         }));
         const calculatedSubtotal = computedItems.reduce((sum, item) => sum + item.amount, 0);
         const calculatedTotal = calculatedSubtotal + (Number(data.tax) || 0) - (Number(data.discount) || 0);
-        const docId = crypto.randomUUID();
+        const docId = crypto_1.default.randomUUID();
         const inserted = await (0, db_js_1.query)(`INSERT INTO financial_documents (
         id, invoice_no, company_id, site_id, vendor_name, date, items, subtotal, tax, discount, total, status, admin_remarks, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
@@ -89,7 +93,7 @@ async function createFinancialDocument(req, res, next) {
         await (0, db_js_1.query)(`INSERT INTO expenses (
         id, company_id, category, amount, date, description, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [
-            crypto.randomUUID(),
+            crypto_1.default.randomUUID(),
             companyId,
             'Material',
             calculatedTotal > 0 ? calculatedTotal : (data.total || 0),

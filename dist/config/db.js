@@ -5,6 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.memoryStore = exports.supabaseAdmin = exports.pool = void 0;
 exports.query = query;
+const crypto_1 = __importDefault(require("crypto"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const pg_1 = __importDefault(require("pg"));
 const supabase_js_1 = require("@supabase/supabase-js");
 const env_js_1 = require("./env.js");
@@ -271,11 +274,11 @@ exports.memoryStore = {
         { room_id: 'c0000000-0000-0000-0000-000000000001', user_id: '40000000-0000-0000-0000-000000000004' }
     ],
     messages: [
-        { id: 'm0000000-0000-0000-0000-000000000001', room_id: 'c0000000-0000-0000-0000-000000000001', sender_user_id: '40000000-0000-0000-0000-000000000001', sender_name: 'System Administrator', content: 'Welcome to the team chat channel! All staff can chat here.', created_at: new Date().toISOString() }
+        { id: 'f0000000-0000-0000-0000-000000000001', room_id: 'c0000000-0000-0000-0000-000000000001', sender_user_id: '40000000-0000-0000-0000-000000000001', sender_name: 'System Administrator', content: 'Welcome to the team chat channel! All staff can chat here.', created_at: new Date().toISOString() }
     ],
     sites: [
         {
-            id: 's0000000-0000-0000-0000-000000000001',
+            id: 'd0000000-0000-0000-0000-000000000001',
             site_code: 'SITE-0001',
             company_id: '00000000-0000-0000-0000-000000000001',
             name: 'Main City Tower Project',
@@ -286,7 +289,7 @@ exports.memoryStore = {
             created_at: new Date().toISOString()
         },
         {
-            id: 's0000000-0000-0000-0000-000000000002',
+            id: 'd0000000-0000-0000-0000-000000000002',
             site_code: 'SITE-0002',
             company_id: '00000000-0000-0000-0000-000000000001',
             name: 'Metro Expressway Flyover',
@@ -297,7 +300,7 @@ exports.memoryStore = {
             created_at: new Date().toISOString()
         },
         {
-            id: 's0000000-0000-0000-0000-000000000003',
+            id: 'd0000000-0000-0000-0000-000000000003',
             site_code: 'SITE-0003',
             company_id: '00000000-0000-0000-0000-000000000001',
             name: 'Green Valley Residency',
@@ -313,7 +316,7 @@ exports.memoryStore = {
             id: 'fin-10001',
             invoice_no: 'INV-20260914-001',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000001',
+            site_id: 'd0000000-0000-0000-0000-000000000001',
             site_name: 'Main City Tower Project',
             vendor_name: 'ABC Building Materials Pvt Ltd',
             date: '2026-09-14',
@@ -336,7 +339,7 @@ exports.memoryStore = {
             id: 'fin-10002',
             invoice_no: 'INV-20260914-002',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000002',
+            site_id: 'd0000000-0000-0000-0000-000000000002',
             site_name: 'Metro Expressway Flyover',
             vendor_name: 'Apex Steel & Structures',
             date: '2026-09-14',
@@ -359,7 +362,7 @@ exports.memoryStore = {
             id: 'prq-10001',
             request_code: 'REQ-0001',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000001',
+            site_id: 'd0000000-0000-0000-0000-000000000001',
             site_name: 'Main City Tower Project',
             product_id: '80000000-0000-0000-0000-000000000001',
             product_name: 'OPC 53 Grade Cement',
@@ -378,7 +381,7 @@ exports.memoryStore = {
             id: 'prq-10002',
             request_code: 'REQ-0002',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000002',
+            site_id: 'd0000000-0000-0000-0000-000000000002',
             site_name: 'Metro Expressway Flyover',
             product_id: '80000000-0000-0000-0000-000000000002',
             product_name: 'TMT Rebar 12mm',
@@ -398,7 +401,7 @@ exports.memoryStore = {
         {
             id: 'inv-10001',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000001',
+            site_id: 'd0000000-0000-0000-0000-000000000001',
             site_name: 'Main City Tower Project',
             product_id: '80000000-0000-0000-0000-000000000001',
             product_name: 'OPC 53 Grade Cement',
@@ -419,7 +422,7 @@ exports.memoryStore = {
         {
             id: 'inv-10002',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000001',
+            site_id: 'd0000000-0000-0000-0000-000000000001',
             site_name: 'Main City Tower Project',
             product_id: '80000000-0000-0000-0000-000000000002',
             product_name: 'TMT Rebar 12mm',
@@ -442,7 +445,7 @@ exports.memoryStore = {
         {
             id: 'itx-10001',
             company_id: '00000000-0000-0000-0000-000000000001',
-            site_id: 's0000000-0000-0000-0000-000000000001',
+            site_id: 'd0000000-0000-0000-0000-000000000001',
             site_name: 'Main City Tower Project',
             product_id: '80000000-0000-0000-0000-000000000001',
             product_name: 'OPC 53 Grade Cement',
@@ -462,9 +465,9 @@ exports.memoryStore = {
             id: 'trf-10001',
             transfer_code: 'TRF-0001',
             company_id: '00000000-0000-0000-0000-000000000001',
-            from_site_id: 's0000000-0000-0000-0000-000000000001',
+            from_site_id: 'd0000000-0000-0000-0000-000000000001',
             from_site_name: 'Main City Tower Project',
-            to_site_id: 's0000000-0000-0000-0000-000000000002',
+            to_site_id: 'd0000000-0000-0000-0000-000000000002',
             to_site_name: 'Metro Expressway Flyover',
             product_id: '80000000-0000-0000-0000-000000000002',
             product_name: 'TMT Rebar 12mm',
@@ -480,6 +483,25 @@ exports.memoryStore = {
         }
     ]
 };
+const LOCAL_DB_PATH = path_1.default.join(process.cwd(), 'local_mock_db.json');
+// Load existing data if available
+try {
+    if (fs_1.default.existsSync(LOCAL_DB_PATH)) {
+        const savedData = JSON.parse(fs_1.default.readFileSync(LOCAL_DB_PATH, 'utf-8'));
+        Object.assign(exports.memoryStore, savedData);
+    }
+}
+catch (e) {
+    console.error('Failed to load local_mock_db.json, using default seed data.', e);
+}
+function saveToDisk() {
+    try {
+        fs_1.default.writeFileSync(LOCAL_DB_PATH, JSON.stringify(exports.memoryStore, null, 2), 'utf-8');
+    }
+    catch (e) {
+        console.error('Failed to save to local_mock_db.json', e);
+    }
+}
 // Smart In-Memory SQL Query Emulator
 function executeInMemoryQuery(text, params) {
     const sql = text.trim().toLowerCase();
@@ -540,9 +562,9 @@ function executeInMemoryQuery(text, params) {
         const seq = exports.memoryStore.employees.length + 1;
         const code = p[1] || `EMP-${String(seq).padStart(4, '0')}`;
         const newEmp = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             employee_code: code,
-            user_id: p[2] || crypto.randomUUID(),
+            user_id: p[2] || crypto_1.default.randomUUID(),
             company_id: p[3] || '00000000-0000-0000-0000-000000000001',
             full_name: p[4],
             phone: p[5],
@@ -575,7 +597,7 @@ function executeInMemoryQuery(text, params) {
         const roleName = p[2] || '';
         const existingIdx = exports.memoryStore.roles.findIndex((r) => r.name.toLowerCase() === roleName.toLowerCase() || r.id === p[0]);
         const newRoleObj = {
-            id: p[0] || (existingIdx >= 0 ? exports.memoryStore.roles[existingIdx].id : crypto.randomUUID()),
+            id: p[0] || (existingIdx >= 0 ? exports.memoryStore.roles[existingIdx].id : crypto_1.default.randomUUID()),
             company_id: p[1] || '00000000-0000-0000-0000-000000000001',
             name: p[2],
             description: p[3],
@@ -611,7 +633,7 @@ function executeInMemoryQuery(text, params) {
         const code = p[0] || `PRD-${String(seq).padStart(4, '0')}`;
         const catObj = exports.memoryStore.product_categories.find((c) => c.id === p[3]);
         const newProd = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             product_code: code,
             company_id: p[1] || '00000000-0000-0000-0000-000000000001',
             name: p[2],
@@ -643,7 +665,7 @@ function executeInMemoryQuery(text, params) {
     }
     if (sql.startsWith('insert into suppliers')) {
         const newSup = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             supplier_code: p[0],
             company_id: p[1],
             company_name: p[2],
@@ -663,7 +685,7 @@ function executeInMemoryQuery(text, params) {
     if (sql.startsWith('insert into purchases')) {
         const supObj = exports.memoryStore.suppliers.find((s) => s.id === p[3]);
         const newPur = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             purchase_number: p[1],
             company_id: p[2],
             supplier_id: p[3],
@@ -689,7 +711,7 @@ function executeInMemoryQuery(text, params) {
     if (sql.startsWith('insert into purchase_items')) {
         const prodObj = exports.memoryStore.products.find((pr) => pr.id === p[1]);
         const newItem = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             purchase_id: p[0],
             product_id: p[1],
             product_name: prodObj?.name || 'Material',
@@ -710,7 +732,7 @@ function executeInMemoryQuery(text, params) {
     if (sql.startsWith('insert into expenses')) {
         const supObj = exports.memoryStore.suppliers.find((s) => s.id === p[4]);
         const newExp = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             company_id: p[0],
             category: p[1],
             amount: Number(p[2]),
@@ -730,7 +752,7 @@ function executeInMemoryQuery(text, params) {
         const empObj = exports.memoryStore.employees.find((e) => e.id === p[0]);
         const existingIdx = exports.memoryStore.attendance.findIndex((a) => a.employee_id === p[0] && a.date === p[1]);
         const newAtt = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             employee_id: p[0],
             employee_name: empObj?.full_name || 'System Administrator',
             employee_code: empObj?.employee_code || 'EMP-0001',
@@ -753,7 +775,7 @@ function executeInMemoryQuery(text, params) {
         const empObj = exports.memoryStore.employees.find((e) => e.id === p[0]);
         const ltObj = exports.memoryStore.leave_types.find((lt) => lt.id === p[1]);
         const newLeave = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             employee_id: p[0],
             employee_name: empObj?.full_name || 'System Administrator',
             leave_type_id: p[1],
@@ -770,7 +792,7 @@ function executeInMemoryQuery(text, params) {
     }
     if (sql.startsWith('insert into holidays')) {
         const newHol = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             company_id: p[0],
             name: p[1],
             date: p[2],
@@ -783,7 +805,7 @@ function executeInMemoryQuery(text, params) {
     }
     if (sql.startsWith('insert into leave_types')) {
         const newLt = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             company_id: p[0],
             name: p[1],
             allocated_days: p[2],
@@ -796,7 +818,7 @@ function executeInMemoryQuery(text, params) {
     if (sql.startsWith('insert into audit_logs')) {
         const empObj = exports.memoryStore.employees.find((e) => e.id === p[1]);
         const newAudit = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             actor_user_id: p[0],
             actor_employee_id: p[1],
             actor_employee_name: empObj?.full_name || 'System Administrator',
@@ -920,7 +942,7 @@ function executeInMemoryQuery(text, params) {
     }
     if (sql.startsWith('insert into chat_rooms')) {
         const newRoom = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             company_id: p[1] || '00000000-0000-0000-0000-000000000001',
             name: p[2] || null,
             type: p[3] || 'direct',
@@ -936,7 +958,7 @@ function executeInMemoryQuery(text, params) {
     }
     if (sql.startsWith('insert into messages')) {
         const newMsg = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             room_id: p[1],
             sender_user_id: p[2],
             sender_name: p[3],
@@ -965,7 +987,7 @@ function executeInMemoryQuery(text, params) {
         const code = p[2] || `SITE-${String(seq).padStart(4, '0')}`;
         const empObj = exports.memoryStore.employees.find((e) => e.id === p[5]);
         const newSite = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             company_id: p[1] || '00000000-0000-0000-0000-000000000001',
             site_code: code,
             name: p[3],
@@ -1036,7 +1058,7 @@ function executeInMemoryQuery(text, params) {
             parsedItems = [];
         }
         const newDoc = {
-            id: p[0] || crypto.randomUUID(),
+            id: p[0] || crypto_1.default.randomUUID(),
             invoice_no: p[1],
             company_id: p[2] || '00000000-0000-0000-0000-000000000001',
             site_id: p[3],
@@ -1070,6 +1092,30 @@ function executeInMemoryQuery(text, params) {
             return [doc];
         }
         return [];
+    }
+    if (sql.startsWith('insert into product_requests')) {
+        const newReq = {
+            id: p[0],
+            request_code: p[1],
+            company_id: p[2],
+            site_id: p[3],
+            product_id: p[4],
+            product_name: p[5],
+            category: p[6],
+            quantity: p[7],
+            unit: p[8],
+            required_date: p[9],
+            priority: p[10],
+            reason: p[11],
+            attachment_url: p[12],
+            requested_by: p[13],
+            status: p[14],
+            created_at: new Date().toISOString(),
+            site_name: (exports.memoryStore.sites.find((s) => s.id === p[3]) || {}).name || 'Site',
+            requested_by_name: (exports.memoryStore.employees.find((e) => e.id === p[13]) || {}).full_name || 'Employee'
+        };
+        exports.memoryStore.product_requests.unshift(newReq);
+        return [newReq];
     }
     if (sql.includes('from financial_documents')) {
         if (sql.includes('where id = $1') || sql.includes('where fd.id = $1')) {
@@ -1116,7 +1162,7 @@ function executeInMemoryQuery(text, params) {
     if (sql.includes('from unwanted_materials')) {
         return exports.memoryStore.unwanted_materials || [];
     }
-    return [{ id: crypto.randomUUID(), total: 1, cnt: 1 }];
+    return [{ id: crypto_1.default.randomUUID(), total: 1, cnt: 1 }];
 }
 async function query(text, params) {
     const start = Date.now();
@@ -1125,7 +1171,12 @@ async function query(text, params) {
             console.warn('⚠️  PostgreSQL DATABASE_URL not set or contains placeholder. Active fallback to seeded in-memory store.');
             useInMemoryFallback = true;
         }
-        return executeInMemoryQuery(text, params);
+        const result = executeInMemoryQuery(text, params);
+        const lowerText = text.trim().toLowerCase();
+        if (lowerText.startsWith('insert ') || lowerText.startsWith('update ') || lowerText.startsWith('delete ')) {
+            saveToDisk();
+        }
+        return result;
     }
     try {
         const res = await exports.pool.query(text, params);
@@ -1139,7 +1190,12 @@ async function query(text, params) {
         if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED') || error.code === '28P01' || error.code === '42P01') {
             console.warn(`⚠️  PostgreSQL query failed (${error.code || 'Connection issue'}). Falling back to pre-seeded in-memory store. Run migrations in supabase/migrations to setup PostgreSQL tables.`);
             useInMemoryFallback = true;
-            return executeInMemoryQuery(text, params);
+            const result = executeInMemoryQuery(text, params);
+            const lowerText = text.trim().toLowerCase();
+            if (lowerText.startsWith('insert ') || lowerText.startsWith('update ') || lowerText.startsWith('delete ')) {
+                saveToDisk();
+            }
+            return result;
         }
         console.error('Database Query Error:', error);
         throw error;

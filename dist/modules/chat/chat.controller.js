@@ -1,10 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getChatContacts = getChatContacts;
 exports.getChatRooms = getChatRooms;
 exports.createOrGetDirectRoom = createOrGetDirectRoom;
 exports.getRoomMessages = getRoomMessages;
 exports.sendMessage = sendMessage;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 // Get list of employee contacts for direct chat (All registered user accounts)
 async function getChatContacts(req, res) {
@@ -75,7 +79,7 @@ async function createOrGetDirectRoom(req, res) {
             }
         }
         // Create new room
-        const roomId = crypto.randomUUID();
+        const roomId = crypto_1.default.randomUUID();
         const isGroup = !target_user_id;
         const name = room_name || (isGroup ? 'Team Group Chat' : 'Direct Message');
         const newRooms = await (0, db_js_1.query)(`INSERT INTO chat_rooms (id, company_id, name, type)
@@ -119,24 +123,46 @@ async function getRoomMessages(req, res) {
         });
     }
 }
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 // Send message to a chat room
 async function sendMessage(req, res) {
     try {
         const currentUser = req.user;
         const currentEmp = req.employee;
         const { roomId } = req.params;
-        const { content } = req.body;
-        if (!content || !content.trim()) {
+        const { content, file } = req.body;
+        if ((!content || !content.trim()) && !file) {
             return res.status(400).json({
                 success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'Message content cannot be empty' }
+                error: { code: 'VALIDATION_ERROR', message: 'Message content or file cannot be empty' }
             });
         }
-        const messageId = crypto.randomUUID();
+        let finalContent = content ? content.trim() : '';
+        // Handle Base64 file upload
+        if (file && file.base64 && file.name) {
+            const uploadDir = path_1.default.join(process.cwd(), 'uploads');
+            if (!fs_1.default.existsSync(uploadDir)) {
+                fs_1.default.mkdirSync(uploadDir, { recursive: true });
+            }
+            // Remove data:image/png;base64, prefix
+            const base64Data = file.base64.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+            const ext = path_1.default.extname(file.name) || '.file';
+            const fileName = `${crypto_1.default.randomUUID()}${ext}`;
+            const filePath = path_1.default.join(uploadDir, fileName);
+            fs_1.default.writeFileSync(filePath, base64Data, 'base64');
+            const fileUrl = `/uploads/${fileName}`;
+            const isImage = file.type?.startsWith('image/');
+            const markdownAttachment = isImage
+                ? `![${file.name}](${fileUrl})`
+                : `[File: ${file.name}](${fileUrl})`;
+            finalContent = finalContent ? `${finalContent}\n\n${markdownAttachment}` : markdownAttachment;
+        }
+        const messageId = crypto_1.default.randomUUID();
         const senderName = currentEmp?.full_name || currentUser.email.split('@')[0];
         const newMessages = await (0, db_js_1.query)(`INSERT INTO messages (id, room_id, sender_user_id, sender_name, content)
        VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`, [messageId, roomId, currentUser.id, senderName, content.trim()]);
+       RETURNING *`, [messageId, roomId, currentUser.id, senderName, finalContent]);
         return res.status(201).json({
             success: true,
             data: newMessages[0] || {

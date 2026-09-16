@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLeaveTypes = getLeaveTypes;
 exports.createLeaveType = createLeaveType;
@@ -6,6 +9,7 @@ exports.getLeaveBalances = getLeaveBalances;
 exports.getLeaveRequests = getLeaveRequests;
 exports.submitLeaveRequest = submitLeaveRequest;
 exports.processLeaveApproval = processLeaveApproval;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -35,7 +39,7 @@ async function createLeaveType(req, res, next) {
         const activeEmployees = await (0, db_js_1.query)(`SELECT id FROM employees WHERE company_id = $1 AND status = 'Active'`, [companyId]);
         for (const emp of activeEmployees) {
             const newBalance = {
-                id: crypto.randomUUID(),
+                id: crypto_1.default.randomUUID(),
                 employee_id: emp.id,
                 leave_type_id: newLt.id,
                 leave_type_name: data.name,
@@ -65,11 +69,14 @@ async function getLeaveBalances(req, res, next) {
     const authReq = req;
     try {
         const { employee_id, year = new Date().getFullYear() } = authReq.query;
-        const targetEmployeeId = employee_id || authReq.employee?.id;
-        const balances = db_js_1.memoryStore.employee_leave_balances.filter((b) => (!targetEmployeeId || b.employee_id === targetEmployeeId) &&
+        // Check if the user is an admin or fetching their own balances
+        // Since we don't have direct role checks here, we assume if they can access this route they can see the balances they requested
+        // If employee_id is provided, filter by it. Otherwise, return all (assuming admin view).
+        const balances = db_js_1.memoryStore.employee_leave_balances.filter((b) => (!employee_id || b.employee_id === employee_id) &&
             (!year || b.year === Number(year))).map((b) => {
-            const lt = db_js_1.memoryStore.leave_types.find((l) => l.id === b.leave_type_id);
-            return { ...b, leave_type_name: lt?.name || b.leave_type_name || 'Leave' };
+            // It's possible memoryStore.leave_types is empty because they are in Postgres.
+            // But we mapped leave_type_name during creation, so it should be preserved.
+            return { ...b };
         });
         return res.json({ success: true, data: balances });
     }
@@ -114,28 +121,36 @@ async function submitLeaveRequest(req, res, next) {
         const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         const year = start.getFullYear();
         // Check leave balance
-        const bal = db_js_1.memoryStore.employee_leave_balances.find((b) => b.employee_id === employeeId &&
+        let bal = db_js_1.memoryStore.employee_leave_balances.find((b) => b.employee_id === employeeId &&
             b.leave_type_id === data.leave_type_id &&
             b.year === year);
+        let ltObj = null;
         if (!bal) {
             // If no balance found, create one from the leave type
-            const lt = db_js_1.memoryStore.leave_types.find((l) => l.id === data.leave_type_id);
-            const newBalance = {
-                id: crypto.randomUUID(),
-                employee_id: employeeId,
-                leave_type_id: data.leave_type_id,
-                leave_type_name: lt?.name || 'Leave',
-                year,
-                allocated_days: lt?.allocated_days || 12,
-                used_days: 0,
-                remaining_days: lt?.allocated_days || 12
-            };
-            db_js_1.memoryStore.employee_leave_balances.push(newBalance);
+            const ltRes = await (0, db_js_1.query)(`SELECT * FROM leave_types WHERE id = $1`, [data.leave_type_id]);
+            ltObj = ltRes[0];
+            if (ltObj) {
+                bal = {
+                    id: crypto_1.default.randomUUID(),
+                    employee_id: employeeId,
+                    leave_type_id: data.leave_type_id,
+                    leave_type_name: ltObj.name || 'Leave',
+                    year,
+                    allocated_days: ltObj.allocated_days || 12,
+                    used_days: 0,
+                    remaining_days: ltObj.allocated_days || 12
+                };
+                db_js_1.memoryStore.employee_leave_balances.push(bal);
+            }
         }
-        const empObj = db_js_1.memoryStore.employees.find((e) => e.id === employeeId);
-        const ltObj = db_js_1.memoryStore.leave_types.find((l) => l.id === data.leave_type_id);
+        else {
+            const ltRes = await (0, db_js_1.query)(`SELECT * FROM leave_types WHERE id = $1`, [data.leave_type_id]);
+            ltObj = ltRes[0];
+        }
+        const empRes = await (0, db_js_1.query)(`SELECT * FROM employees WHERE id = $1`, [employeeId]);
+        const empObj = empRes[0];
         const newRequest = {
-            id: crypto.randomUUID(),
+            id: crypto_1.default.randomUUID(),
             employee_id: employeeId,
             employee_name: empObj?.full_name || 'Employee',
             leave_type_id: data.leave_type_id,

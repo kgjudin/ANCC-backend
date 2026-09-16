@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInventoryOverview = getInventoryOverview;
 exports.recordMaterialUsage = recordMaterialUsage;
@@ -7,6 +10,7 @@ exports.createMaterialTransfer = createMaterialTransfer;
 exports.updateMaterialTransferStatus = updateMaterialTransferStatus;
 exports.getMaterialTransfers = getMaterialTransfers;
 exports.getInventoryTransactions = getInventoryTransactions;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 async function getInventoryOverview(req, res, next) {
@@ -69,7 +73,7 @@ async function recordMaterialUsage(req, res, next) {
                 error: { code: 'INSUFFICIENT_STOCK', message: `Insufficient inventory balance. Available: ${currentBal} ${data.unit}, Requested Usage: ${data.quantity_used} ${data.unit}` }
             });
         }
-        const usageId = crypto.randomUUID();
+        const usageId = crypto_1.default.randomUUID();
         // Insert usage record
         const usageRow = await (0, db_js_1.query)(`INSERT INTO material_usage (
         id, company_id, site_id, product_id, quantity_used, unit, activity, usage_date, used_by, notes, photo_url
@@ -95,7 +99,7 @@ async function recordMaterialUsage(req, res, next) {
         await (0, db_js_1.query)(`INSERT INTO inventory_transactions (
         id, company_id, site_id, product_id, quantity, unit, transaction_type, reference_id, notes, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, [
-            crypto.randomUUID(),
+            crypto_1.default.randomUUID(),
             companyId,
             data.site_id,
             data.product_id,
@@ -124,7 +128,7 @@ async function reportDamagedMaterial(req, res, next) {
         const actorEmployeeId = authReq.employee?.id;
         const existingInv = await (0, db_js_1.query)(`SELECT * FROM inventory WHERE site_id = $1 AND product_id = $2`, [data.site_id, data.product_id]);
         let inv = existingInv && existingInv.length > 0 ? existingInv[0] : null;
-        const damageId = crypto.randomUUID();
+        const damageId = crypto_1.default.randomUUID();
         const damageRow = await (0, db_js_1.query)(`INSERT INTO damaged_materials (
         id, company_id, site_id, product_id, quantity, unit, damage_date, reason, description, photo_url, reported_by, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'Reported')
@@ -150,7 +154,7 @@ async function reportDamagedMaterial(req, res, next) {
         await (0, db_js_1.query)(`INSERT INTO inventory_transactions (
         id, company_id, site_id, product_id, quantity, unit, transaction_type, reference_id, notes, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, [
-            crypto.randomUUID(),
+            crypto_1.default.randomUUID(),
             companyId,
             data.site_id,
             data.product_id,
@@ -182,7 +186,7 @@ async function createMaterialTransfer(req, res, next) {
         const cntVal = Number(countRes[0]?.cnt ?? countRes[0]?.total ?? countRes[0]?.count ?? 0);
         const seq = isNaN(cntVal) || cntVal < 0 ? 1 : cntVal + 1;
         const transferCode = `TRF-${String(seq).padStart(4, '0')}`;
-        const trfId = crypto.randomUUID();
+        const trfId = crypto_1.default.randomUUID();
         const inserted = await (0, db_js_1.query)(`INSERT INTO material_transfers (
         id, transfer_code, company_id, from_site_id, to_site_id, product_id, quantity, unit, reason, status, requested_by, transfer_date
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pending', $10, $11)
@@ -250,13 +254,13 @@ async function updateMaterialTransferStatus(req, res, next) {
             }
             else {
                 await (0, db_js_1.query)(`INSERT INTO inventory (id, company_id, site_id, product_id, opening_stock, transferred_in_qty, current_balance, unit)
-           VALUES ($1, $2, $3, $4, 0, $5, $5, $6)`, [crypto.randomUUID(), companyId, trf.to_site_id, trf.product_id, trf.quantity, trf.unit]);
+           VALUES ($1, $2, $3, $4, 0, $5, $5, $6)`, [crypto_1.default.randomUUID(), companyId, trf.to_site_id, trf.product_id, trf.quantity, trf.unit]);
             }
             // Record immutable transactions for both sites
             await (0, db_js_1.query)(`INSERT INTO inventory_transactions (id, company_id, site_id, product_id, quantity, unit, transaction_type, reference_id, notes, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, 'Transfer Out', $7, 'Transferred to another site', $8)`, [crypto.randomUUID(), companyId, trf.from_site_id, trf.product_id, trf.quantity, trf.unit, id, actorEmployeeId]);
+         VALUES ($1, $2, $3, $4, $5, $6, 'Transfer Out', $7, 'Transferred to another site', $8)`, [crypto_1.default.randomUUID(), companyId, trf.from_site_id, trf.product_id, trf.quantity, trf.unit, id, actorEmployeeId]);
             await (0, db_js_1.query)(`INSERT INTO inventory_transactions (id, company_id, site_id, product_id, quantity, unit, transaction_type, reference_id, notes, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, 'Transfer In', $7, 'Received from site transfer', $8)`, [crypto.randomUUID(), companyId, trf.to_site_id, trf.product_id, trf.quantity, trf.unit, id, actorEmployeeId]);
+         VALUES ($1, $2, $3, $4, $5, $6, 'Transfer In', $7, 'Received from site transfer', $8)`, [crypto_1.default.randomUUID(), companyId, trf.to_site_id, trf.product_id, trf.quantity, trf.unit, id, actorEmployeeId]);
         }
         return res.json({
             success: true,

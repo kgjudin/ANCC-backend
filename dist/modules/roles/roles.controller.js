@@ -1,10 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPermissions = getPermissions;
 exports.getRoles = getRoles;
 exports.getRoleById = getRoleById;
 exports.createRole = createRole;
 exports.updateRole = updateRole;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -148,7 +152,7 @@ async function createRole(req, res, next) {
         const actorEmployeeId = authReq.employee?.id;
         // Check if role name already exists in memoryStore or DB to avoid duplicate creation
         const existingMemIdx = db_js_1.memoryStore.roles.findIndex((r) => r.name.toLowerCase() === name.toLowerCase() && (r.company_id === companyId || !r.company_id));
-        const roleId = existingMemIdx >= 0 ? db_js_1.memoryStore.roles[existingMemIdx].id : crypto.randomUUID();
+        const roleId = existingMemIdx >= 0 ? db_js_1.memoryStore.roles[existingMemIdx].id : crypto_1.default.randomUUID();
         const permKeys = permissions || [];
         const permObjects = buildPermObjects(permKeys);
         // 1. Insert/Update PostgreSQL database roles table

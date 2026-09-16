@@ -67,12 +67,12 @@ router.post('/employees', auth_middleware_js_1.authenticateToken, (0, rbac_middl
 router.patch('/employees/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_EDIT), employeeController.updateEmployee);
 router.post('/employees/:id/reset-password', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_EDIT), employeeController.resetPassword);
 // Roles & Permissions API
-router.get('/permissions', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_VIEW), roleController.getPermissions);
-router.get('/roles', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_VIEW), roleController.getRoles);
-router.get('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_VIEW), roleController.getRoleById);
-router.post('/roles', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_CREATE), roleController.createRole);
-router.put('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_EDIT), roleController.updateRole);
-router.patch('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.EMPLOYEE_EDIT), roleController.updateRole);
+router.get('/permissions', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_VIEW), roleController.getPermissions);
+router.get('/roles', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_VIEW), roleController.getRoles);
+router.get('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_VIEW), roleController.getRoleById);
+router.post('/roles', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_CREATE), roleController.createRole);
+router.put('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_EDIT), roleController.updateRole);
+router.patch('/roles/:id', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ROLE_EDIT), roleController.updateRole);
 // Attendance API
 router.get('/attendance', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ATTENDANCE_VIEW), attendanceController.getAttendance);
 router.post('/attendance', auth_middleware_js_1.authenticateToken, (0, rbac_middleware_js_1.requirePermission)(constants_1.PERMISSIONS.ATTENDANCE_EDIT), attendanceController.recordAttendance);

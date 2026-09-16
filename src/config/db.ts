@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import pg from 'pg';
 import { createClient } from '@supabase/supabase-js';
 import { ENV } from './env.js';
@@ -271,11 +273,11 @@ export const memoryStore = {
     { room_id: 'c0000000-0000-0000-0000-000000000001', user_id: '40000000-0000-0000-0000-000000000004' }
   ],
   messages: [
-    { id: 'm0000000-0000-0000-0000-000000000001', room_id: 'c0000000-0000-0000-0000-000000000001', sender_user_id: '40000000-0000-0000-0000-000000000001', sender_name: 'System Administrator', content: 'Welcome to the team chat channel! All staff can chat here.', created_at: new Date().toISOString() }
+    { id: 'f0000000-0000-0000-0000-000000000001', room_id: 'c0000000-0000-0000-0000-000000000001', sender_user_id: '40000000-0000-0000-0000-000000000001', sender_name: 'System Administrator', content: 'Welcome to the team chat channel! All staff can chat here.', created_at: new Date().toISOString() }
   ],
   sites: [
     {
-      id: 's0000000-0000-0000-0000-000000000001',
+      id: 'd0000000-0000-0000-0000-000000000001',
       site_code: 'SITE-0001',
       company_id: '00000000-0000-0000-0000-000000000001',
       name: 'Main City Tower Project',
@@ -286,7 +288,7 @@ export const memoryStore = {
       created_at: new Date().toISOString()
     },
     {
-      id: 's0000000-0000-0000-0000-000000000002',
+      id: 'd0000000-0000-0000-0000-000000000002',
       site_code: 'SITE-0002',
       company_id: '00000000-0000-0000-0000-000000000001',
       name: 'Metro Expressway Flyover',
@@ -297,7 +299,7 @@ export const memoryStore = {
       created_at: new Date().toISOString()
     },
     {
-      id: 's0000000-0000-0000-0000-000000000003',
+      id: 'd0000000-0000-0000-0000-000000000003',
       site_code: 'SITE-0003',
       company_id: '00000000-0000-0000-0000-000000000001',
       name: 'Green Valley Residency',
@@ -313,7 +315,7 @@ export const memoryStore = {
       id: 'fin-10001',
       invoice_no: 'INV-20260914-001',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000001',
+      site_id: 'd0000000-0000-0000-0000-000000000001',
       site_name: 'Main City Tower Project',
       vendor_name: 'ABC Building Materials Pvt Ltd',
       date: '2026-09-14',
@@ -336,7 +338,7 @@ export const memoryStore = {
       id: 'fin-10002',
       invoice_no: 'INV-20260914-002',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000002',
+      site_id: 'd0000000-0000-0000-0000-000000000002',
       site_name: 'Metro Expressway Flyover',
       vendor_name: 'Apex Steel & Structures',
       date: '2026-09-14',
@@ -359,7 +361,7 @@ export const memoryStore = {
       id: 'prq-10001',
       request_code: 'REQ-0001',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000001',
+      site_id: 'd0000000-0000-0000-0000-000000000001',
       site_name: 'Main City Tower Project',
       product_id: '80000000-0000-0000-0000-000000000001',
       product_name: 'OPC 53 Grade Cement',
@@ -378,7 +380,7 @@ export const memoryStore = {
       id: 'prq-10002',
       request_code: 'REQ-0002',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000002',
+      site_id: 'd0000000-0000-0000-0000-000000000002',
       site_name: 'Metro Expressway Flyover',
       product_id: '80000000-0000-0000-0000-000000000002',
       product_name: 'TMT Rebar 12mm',
@@ -398,7 +400,7 @@ export const memoryStore = {
     {
       id: 'inv-10001',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000001',
+      site_id: 'd0000000-0000-0000-0000-000000000001',
       site_name: 'Main City Tower Project',
       product_id: '80000000-0000-0000-0000-000000000001',
       product_name: 'OPC 53 Grade Cement',
@@ -419,7 +421,7 @@ export const memoryStore = {
     {
       id: 'inv-10002',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000001',
+      site_id: 'd0000000-0000-0000-0000-000000000001',
       site_name: 'Main City Tower Project',
       product_id: '80000000-0000-0000-0000-000000000002',
       product_name: 'TMT Rebar 12mm',
@@ -442,7 +444,7 @@ export const memoryStore = {
     {
       id: 'itx-10001',
       company_id: '00000000-0000-0000-0000-000000000001',
-      site_id: 's0000000-0000-0000-0000-000000000001',
+      site_id: 'd0000000-0000-0000-0000-000000000001',
       site_name: 'Main City Tower Project',
       product_id: '80000000-0000-0000-0000-000000000001',
       product_name: 'OPC 53 Grade Cement',
@@ -462,9 +464,9 @@ export const memoryStore = {
       id: 'trf-10001',
       transfer_code: 'TRF-0001',
       company_id: '00000000-0000-0000-0000-000000000001',
-      from_site_id: 's0000000-0000-0000-0000-000000000001',
+      from_site_id: 'd0000000-0000-0000-0000-000000000001',
       from_site_name: 'Main City Tower Project',
-      to_site_id: 's0000000-0000-0000-0000-000000000002',
+      to_site_id: 'd0000000-0000-0000-0000-000000000002',
       to_site_name: 'Metro Expressway Flyover',
       product_id: '80000000-0000-0000-0000-000000000002',
       product_name: 'TMT Rebar 12mm',
@@ -480,6 +482,26 @@ export const memoryStore = {
     }
   ]
 };
+
+const LOCAL_DB_PATH = path.join(process.cwd(), 'local_mock_db.json');
+
+// Load existing data if available
+try {
+  if (fs.existsSync(LOCAL_DB_PATH)) {
+    const savedData = JSON.parse(fs.readFileSync(LOCAL_DB_PATH, 'utf-8'));
+    Object.assign(memoryStore, savedData);
+  }
+} catch (e) {
+  console.error('Failed to load local_mock_db.json, using default seed data.', e);
+}
+
+function saveToDisk() {
+  try {
+    fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(memoryStore, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Failed to save to local_mock_db.json', e);
+  }
+}
 
 // Smart In-Memory SQL Query Emulator
 function executeInMemoryQuery(text: string, params?: any[]): any[] {
@@ -1102,6 +1124,31 @@ function executeInMemoryQuery(text: string, params?: any[]): any[] {
     return [];
   }
 
+  if (sql.startsWith('insert into product_requests')) {
+    const newReq = {
+      id: p[0],
+      request_code: p[1],
+      company_id: p[2],
+      site_id: p[3],
+      product_id: p[4],
+      product_name: p[5],
+      category: p[6],
+      quantity: p[7],
+      unit: p[8],
+      required_date: p[9],
+      priority: p[10],
+      reason: p[11],
+      attachment_url: p[12],
+      requested_by: p[13],
+      status: p[14],
+      created_at: new Date().toISOString(),
+      site_name: (memoryStore.sites.find((s) => s.id === p[3]) || {}).name || 'Site',
+      requested_by_name: (memoryStore.employees.find((e) => e.id === p[13]) || {}).full_name || 'Employee'
+    };
+    memoryStore.product_requests.unshift(newReq as any);
+    return [newReq];
+  }
+
   if (sql.includes('from financial_documents')) {
     if (sql.includes('where id = $1') || sql.includes('where fd.id = $1')) {
       const targetId = p[0];
@@ -1166,7 +1213,12 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
       console.warn('⚠️  PostgreSQL DATABASE_URL not set or contains placeholder. Active fallback to seeded in-memory store.');
       useInMemoryFallback = true;
     }
-    return executeInMemoryQuery(text, params) as T[];
+    const result = executeInMemoryQuery(text, params) as T[];
+    const lowerText = text.trim().toLowerCase();
+    if (lowerText.startsWith('insert ') || lowerText.startsWith('update ') || lowerText.startsWith('delete ')) {
+      saveToDisk();
+    }
+    return result;
   }
 
   try {
@@ -1180,7 +1232,12 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
     if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED') || error.code === '28P01' || error.code === '42P01') {
       console.warn(`⚠️  PostgreSQL query failed (${error.code || 'Connection issue'}). Falling back to pre-seeded in-memory store. Run migrations in supabase/migrations to setup PostgreSQL tables.`);
       useInMemoryFallback = true;
-      return executeInMemoryQuery(text, params) as T[];
+      const result = executeInMemoryQuery(text, params) as T[];
+      const lowerText = text.trim().toLowerCase();
+      if (lowerText.startsWith('insert ') || lowerText.startsWith('update ') || lowerText.startsWith('delete ')) {
+        saveToDisk();
+      }
+      return result;
     }
     console.error('Database Query Error:', error);
     throw error;

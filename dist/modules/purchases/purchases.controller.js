@@ -1,9 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPurchases = getPurchases;
 exports.getPurchaseById = getPurchaseById;
 exports.createPurchase = createPurchase;
 exports.updatePurchasePayment = updatePurchasePayment;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const finance_service_js_1 = require("../../services/finance.service.js");
@@ -135,7 +139,7 @@ async function createPurchase(req, res, next) {
         const cntVal = Number(countRes[0]?.cnt ?? countRes[0]?.total ?? countRes[0]?.count ?? 0);
         const seq = isNaN(cntVal) || cntVal < 0 ? 1 : cntVal + 1;
         const purchaseNumber = `PUR-${String(seq).padStart(5, '0')}`;
-        const purchaseId = crypto.randomUUID();
+        const purchaseId = crypto_1.default.randomUUID();
         const headerResult = await (0, db_js_1.query)(`INSERT INTO purchases (
         id, purchase_number, company_id, supplier_id, site_id, purchase_date,
         subtotal, transport_cost, other_charges, tax_amount, discount_amount,

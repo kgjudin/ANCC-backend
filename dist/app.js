@@ -32,8 +32,11 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+const path_1 = __importDefault(require("path"));
 // API Routes
 app.use('/api/v1', index_js_1.default);
+// Static Uploads Directory
+app.use('/uploads', express_1.default.static(path_1.default.join(process.cwd(), 'uploads')));
 // Global Error Handler
 app.use(error_middleware_js_1.errorHandler);
 exports.default = app;

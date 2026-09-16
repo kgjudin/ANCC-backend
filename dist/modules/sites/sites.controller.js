@@ -1,10 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSites = getSites;
 exports.createSite = createSite;
 exports.updateSite = updateSite;
 exports.getSiteById = getSiteById;
 exports.deleteSite = deleteSite;
+const crypto_1 = __importDefault(require("crypto"));
 const db_js_1 = require("../../config/db.js");
 const validation_1 = require("@construction/validation");
 const audit_service_js_1 = require("../../services/audit.service.js");
@@ -52,7 +56,7 @@ async function createSite(req, res, next) {
         const cntVal = Number(countRes[0]?.cnt ?? countRes[0]?.total ?? countRes[0]?.count ?? 0);
         const seq = isNaN(cntVal) || cntVal < 0 ? 1 : cntVal + 1;
         const siteCode = `SITE-${String(seq).padStart(4, '0')}`;
-        const siteId = crypto.randomUUID();
+        const siteId = crypto_1.default.randomUUID();
         const siteRows = await (0, db_js_1.query)(`INSERT INTO sites (
         id, company_id, site_code, name, location, site_manager_id, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
